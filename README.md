@@ -5,23 +5,24 @@
 - Config
 - Initializer
 - Interceptor
+- Error
 
 ## Usage
 
 ### Config
 
 ```kotlin
-let config = new MyAPI.Config(
+val config = MyAPI.Config(
    baseUrl = "https://api.example.com",
    token = "Akawdpl10i2103",
-   interceptor = new MyAPI.Interceptor(...)
+   interceptor = MyAPI.Interceptor(...)
 )
 ```
 
 ### Core
 
 ```kotlin
-let core = new MyAPI.Initializer(config)
+val core = new MyAPI.Initializer(config)
 
 core.getUser(config)
 ```
@@ -37,21 +38,46 @@ core.getUser(config)
 ini adalah cara membuat interceptor sekaligus memberitahukan logika bawaan interceptor jika tidak di passing via Core class / getUser function
 
 ```kotlin
-new MyAPI.Interceptor(
+val interceptor = MyAPI.Interceptor(
       
-  # must return config
-  request = (config) -> {
-      return config
+  // Must return config
+  request = { config ->
+      config // Return modified config
   },
 
-  # must return data
-  response = (responseData, validator, config) -> {
-      let validResponseData = validator(responseData)
-      return validResponseData
+  // Must return data
+  response = { responseData, validator, config ->
+      val validResponseData = validator(responseData)
+      validResponseData // Return validated response
   }
 )
+
 ```
 
 - saat intercept request, **config yang di ubah itu hanya untuk request itu saja**, tidak mengubah untuk global
 - saat intercept response, **config yang di dapat adalah config yang di pakai saat request**, artinya config yang paling terbaru termasuk jika diubah via interceptor request
 - validator adalah DTO kita, by default data dari BE harus serialized dan di validasi terlebih dahulu
+
+
+### Error
+
+``` kotlin
+sealed class MyAPIError {
+    data class NetworkError(val message: String) : MyAPIError()
+    data class ResponseMissMatch(val message: String) : MyAPIError()
+    object UnknownError: SDKError()
+}
+```
+
+nanti di swift tinggal gini
+```swift
+switch error {
+case is MyAPIError.NetworkError:
+    print("Networknya tidak baik")
+case is MyAPIError.ResponseMissMatch:
+    print("Backend salah kasih response")
+default:
+    print("Unknown error")
+}
+
+```
