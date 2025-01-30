@@ -54,12 +54,16 @@ val interceptor = MyAPI.Interceptor(
 
 ```
 
+Note
 - saat intercept request, **config yang di ubah itu hanya untuk request itu saja**, tidak mengubah untuk global
 - saat intercept response, **config yang di dapat adalah config yang di pakai saat request**, artinya config yang paling terbaru termasuk jika diubah via interceptor request
 - validator adalah DTO kita, by default data dari BE harus serialized dan di validasi terlebih dahulu
 
 
 ### Error
+
+>[!IMPORTANT]
+>MyAPIError nanti di tambah saja sesuai berjalanya waktu
 
 ``` kotlin
 sealed class MyAPIError {
@@ -69,7 +73,7 @@ sealed class MyAPIError {
 }
 ```
 
-nanti di swift tinggal gini
+nanti di swift tinggal gini harusnya
 ```swift
 switch error {
 case is MyAPIError.NetworkError:
