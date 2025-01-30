@@ -3,12 +3,13 @@
 ## Class
 
 - Config
-- Core
+- Initializer
 - Interceptor
 
 ## Usage
 
 ### Config
+
 ```kotlin
 let config = new MyAPI.Config(
    baseUrl = "https://api.example.com",
@@ -20,7 +21,7 @@ let config = new MyAPI.Config(
 ### Core
 
 ```kotlin
-let core = new MyAPI.Core(config)
+let core = new MyAPI.Initializer(config)
 
 core.getUser(config)
 ```
@@ -39,17 +40,18 @@ ini adalah cara membuat interceptor sekaligus memberitahukan logika bawaan inter
 new MyAPI.Interceptor(
       
   # must return config
-  # jika tidak ada interceptor, return config
   request = (config) -> {
       return config
   },
 
   # must return data
-  # jika tidak ada interceptor, return validated data
-  response = (maybeValidData, validator) -> {
-      # default interceptornya gini
-      let validData = validator(maybeValidData)
-      return validData
+  response = (responseData, validator, config) -> {
+      let validResponseData = validator(responseData)
+      return validResponseData
   }
 )
 ```
+
+- saat intercept request, **config yang di ubah itu hanya untuk request itu saja**, tidak mengubah untuk global
+- saat intercept response, **config yang di dapat adalah config yang di pakai saat request**, artinya config yang paling terbaru termasuk jika diubah via interceptor request
+- validator adalah DTO kita, by default data dari BE harus serialized dan di validasi terlebih dahulu
